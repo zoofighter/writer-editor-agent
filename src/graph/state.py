@@ -223,9 +223,162 @@ class ChapterExercises(TypedDict):
     timestamp: str
 
 
+# ===== Book-Level TypedDict Types =====
+
+
+class BookMetadata(TypedDict):
+    """
+    Book-level metadata for multi-chapter books.
+
+    Attributes:
+        book_title: Full title of the book
+        book_type: Type (tutorial, history, technical_guide, narrative, general)
+        author: Author name(s)
+        description: Book description
+        target_audience: Target reader description
+        estimated_chapters: Expected number of chapters
+        language: Primary language (en, ko, etc.)
+        created_at: Creation timestamp (ISO format)
+        version: Book version
+    """
+    book_title: str
+    book_type: str  # tutorial, history, technical_guide, narrative, general
+    author: Optional[str]
+    description: Optional[str]
+    target_audience: Optional[str]
+    estimated_chapters: Optional[int]
+    language: str
+    created_at: str
+    version: str
+
+
+class ChapterDependency(TypedDict):
+    """
+    Chapter dependency information for managing chapter order.
+
+    Attributes:
+        chapter_number: Current chapter number
+        depends_on: List of chapter numbers this chapter depends on
+        prerequisite_concepts: Concepts that must be understood first
+        introduces_concepts: New concepts introduced in this chapter
+    """
+    chapter_number: int
+    depends_on: List[int]
+    prerequisite_concepts: List[str]
+    introduces_concepts: List[str]
+
+
+class CrossReference(TypedDict):
+    """
+    Cross-reference between chapters.
+
+    Attributes:
+        source_chapter: Chapter where reference is made
+        target_chapter: Chapter being referenced
+        reference_text: Text of the reference
+        reference_type: Type (see_also, prerequisite, example, definition)
+    """
+    source_chapter: int
+    target_chapter: int
+    reference_text: str
+    reference_type: str  # see_also, prerequisite, example, definition
+
+
+class TerminologyEntry(TypedDict):
+    """
+    Terminology/glossary entry for consistent term usage.
+
+    Attributes:
+        term: The term/concept
+        definition: Definition
+        first_introduced_chapter: Chapter where first defined
+        aliases: Alternative names for the term
+        related_terms: Related concepts
+    """
+    term: str
+    definition: str
+    first_introduced_chapter: int
+    aliases: List[str]
+    related_terms: List[str]
+
+
+class TableOfContents(TypedDict):
+    """
+    Book table of contents.
+
+    Attributes:
+        chapters: List of chapter entries with number, title, summary
+        generated_at: When TOC was generated (ISO format)
+        total_estimated_length: Total estimated word count
+    """
+    chapters: List[Dict[str, Any]]  # [{"number": 1, "title": "...", "summary": "..."}, ...]
+    generated_at: str
+    total_estimated_length: int
+
+
+class FactCheckResult(TypedDict):
+    """
+    Fact-checking result for a claim in historical or technical books.
+
+    Attributes:
+        claim: The claim being checked
+        chapter_number: Chapter containing the claim
+        verification_status: Status (verified, unverified, disputed, false)
+        sources: Supporting sources
+        confidence_score: Confidence (0.0-1.0)
+        notes: Additional notes
+        checked_at: Timestamp (ISO format)
+    """
+    claim: str
+    chapter_number: int
+    verification_status: str  # verified, unverified, disputed, false
+    sources: List[str]
+    confidence_score: float
+    notes: Optional[str]
+    checked_at: str
+
+
+class MathFormula(TypedDict):
+    """
+    Math formula in LaTeX for technical books.
+
+    Attributes:
+        formula_id: Unique identifier
+        latex_code: LaTeX formula code
+        chapter_number: Chapter containing formula
+        description: What the formula represents
+        is_inline: True for inline, False for display mode
+    """
+    formula_id: str
+    latex_code: str
+    chapter_number: int
+    description: str
+    is_inline: bool
+
+
+class Diagram(TypedDict):
+    """
+    Diagram specification for technical books.
+
+    Attributes:
+        diagram_id: Unique identifier
+        diagram_type: Type (mermaid, plantuml, graphviz)
+        code: Diagram code
+        chapter_number: Chapter containing diagram
+        caption: Diagram caption
+        description: What the diagram illustrates
+    """
+    diagram_id: str
+    diagram_type: str  # mermaid, plantuml, graphviz
+    code: str
+    chapter_number: int
+    caption: str
+    description: str
+
+
 class WorkflowState(TypedDict):
     """
-    Main state schema for the Writer-Editor review loop.
+    Main state schema for the Writer-Editor review loop and book generation.
 
     This state is shared across all nodes in the LangGraph workflow.
     Nodes return partial updates that are automatically merged by LangGraph.
@@ -261,6 +414,20 @@ class WorkflowState(TypedDict):
         chapter_number: Current chapter number (for tutorial books)
         chapter_metadata: Additional metadata for the chapter (title, learning objectives, etc.)
         export_path: Path where the chapter was exported
+
+        # Book-level fields
+        book_metadata: Metadata for the entire book (title, type, author, etc.)
+        table_of_contents: Generated table of contents for the book
+        chapter_dependencies: Chapter dependency information (accumulated using add reducer)
+        cross_references: Cross-references between chapters (accumulated using add reducer)
+        terminology_glossary: Glossary of terms used across the book
+        completed_chapters: List of chapter numbers that have been completed
+        current_book_stage: Current stage of book creation (planning/writing/reviewing/finalizing)
+        math_formulas: LaTeX formulas used in the book (accumulated using add reducer)
+        diagrams: Diagrams (Mermaid/PlantUML) used in the book (accumulated using add reducer)
+        fact_check_results: Fact-checking results (accumulated using add reducer)
+        book_export_path: Path to the assembled complete book
+        chapter_export_paths: Mapping of chapter_number to export file path
 
     Notes:
         - Fields with Annotated[List[T], add] use the add reducer to accumulate items
@@ -298,3 +465,17 @@ class WorkflowState(TypedDict):
     chapter_number: Optional[int]
     chapter_metadata: Optional[Dict[str, Any]]
     export_path: Optional[str]
+
+    # Book-level fields
+    book_metadata: Optional[BookMetadata]
+    table_of_contents: Optional[TableOfContents]
+    chapter_dependencies: Annotated[List[ChapterDependency], add]
+    cross_references: Annotated[List[CrossReference], add]
+    terminology_glossary: Dict[str, TerminologyEntry]  # term -> entry
+    completed_chapters: List[int]  # List of completed chapter numbers
+    current_book_stage: str  # planning, writing, reviewing, finalizing
+    math_formulas: Annotated[List[MathFormula], add]
+    diagrams: Annotated[List[Diagram], add]
+    fact_check_results: Annotated[List[FactCheckResult], add]
+    book_export_path: Optional[str]  # Path to assembled book
+    chapter_export_paths: Dict[int, str]  # chapter_number -> path

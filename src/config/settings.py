@@ -55,6 +55,43 @@ class Settings(BaseSettings):
     fill_in_blank_per_chapter: int = 3  # Fill-in-the-blank exercises
     coding_challenges_per_chapter: int = 3  # Coding challenges
 
+    # ===== Book System Settings =====
+    # Book Coordinator Agent
+    book_coordinator_temperature: float = 0.3  # Analytical for book planning
+    default_book_chapters: int = 15  # Default number of chapters
+
+    # Fact Check Agent
+    fact_check_agent_temperature: float = 0.2  # Precision for verification
+    fact_check_confidence_threshold: float = 0.7  # Minimum confidence score
+    enable_fact_checking: bool = True  # Enable fact-checking for history/technical books
+
+    # Math Formula Agent
+    math_agent_temperature: float = 0.2  # Precision for LaTeX generation
+    validate_latex_syntax: bool = True  # Validate LaTeX before including
+
+    # Diagram Agent
+    diagram_agent_temperature: float = 0.3  # Balance for diagram generation
+    default_diagram_type: str = "mermaid"  # Default: mermaid, plantuml, graphviz
+
+    # Bibliography Agent
+    bibliography_agent_temperature: float = 0.2  # Precision for citations
+    default_citation_style: str = "APA"  # Citation style: APA, MLA, Chicago
+
+    # Cross Reference Agent
+    cross_reference_agent_temperature: float = 0.2  # Analytical for validation
+
+    # Book Export
+    book_output_dir: str = "output/books"  # Export directory for complete books
+    auto_export_book: bool = True  # Auto-export on workflow completion
+    generate_pdf: bool = True  # Generate PDF in addition to markdown
+    pandoc_path: Optional[str] = None  # Custom pandoc path (auto-detected if None)
+
+    # Book Workflow
+    max_chapters_per_book: int = 30  # Maximum chapters allowed
+    require_user_approval_per_chapter: bool = False  # Ask after each chapter
+    enable_cross_reference_validation: bool = True  # Validate cross-references
+    enable_terminology_consistency_check: bool = True  # Check term consistency
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

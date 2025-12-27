@@ -440,6 +440,286 @@ PYTHON_TUTORIAL_TEMPLATE = {
 }
 
 
+# Historical Book Template
+HISTORICAL_BOOK_TEMPLATE = {
+    "name": "historical_book",
+    "description": "Narrative-driven historical book chapter with fact-checking support",
+    "book_type": "history",
+    "sections": [
+        {
+            "section_id": "historical_context",
+            "title": "Historical Context",
+            "purpose": "Set the time period and background",
+            "key_points": [
+                "Time period and geographical setting",
+                "Political and social environment",
+                "Key background information"
+            ],
+            "estimated_length": "400-600 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} historical background",
+                "{topic} time period context",
+                "{topic} political situation"
+            ],
+            "requires_fact_check": True,
+            "requires_citations": True
+        },
+        {
+            "section_id": "key_events",
+            "title": "Key Events",
+            "purpose": "Chronological narrative of main events",
+            "key_points": [
+                "Major events in chronological order",
+                "Cause and effect relationships",
+                "Turning points and significance"
+            ],
+            "estimated_length": "1000-1500 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} timeline events",
+                "{topic} major milestones",
+                "{topic} chronology"
+            ],
+            "requires_fact_check": True,
+            "requires_citations": True,
+            "requires_timeline": True
+        },
+        {
+            "section_id": "key_figures",
+            "title": "Key Figures",
+            "purpose": "Important people and their roles",
+            "key_points": [
+                "Main actors and participants",
+                "Their backgrounds and motivations",
+                "Their contributions and impact"
+            ],
+            "estimated_length": "600-800 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} key people",
+                "{topic} historical figures",
+                "{topic} leaders"
+            ],
+            "requires_fact_check": True,
+            "requires_citations": True
+        },
+        {
+            "section_id": "impact_legacy",
+            "title": "Impact and Legacy",
+            "purpose": "Long-term consequences and significance",
+            "key_points": [
+                "Immediate consequences",
+                "Long-term impact",
+                "Historical significance",
+                "Modern relevance"
+            ],
+            "estimated_length": "500-700 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} historical impact",
+                "{topic} legacy",
+                "{topic} consequences"
+            ],
+            "requires_fact_check": True,
+            "requires_citations": True
+        },
+        {
+            "section_id": "primary_sources",
+            "title": "Primary Sources",
+            "purpose": "Reference to original documents and materials",
+            "key_points": [
+                "Available primary sources",
+                "Document citations",
+                "Archival references"
+            ],
+            "estimated_length": "200-400 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} primary sources",
+                "{topic} original documents",
+                "{topic} archives"
+            ],
+            "requires_citations": True
+        }
+    ],
+    "special_features": {
+        "fact_checking": True,
+        "citation_management": True,
+        "timeline_generation": True,
+        "primary_source_linking": True
+    }
+}
+
+
+# Technical Guide Template
+TECHNICAL_GUIDE_TEMPLATE = {
+    "name": "technical_guide",
+    "description": "Technical guide with math formulas and diagrams (e.g., GPT model guide)",
+    "book_type": "technical_guide",
+    "sections": [
+        {
+            "section_id": "introduction",
+            "title": "Introduction",
+            "purpose": "Overview and motivation",
+            "key_points": [
+                "What this chapter covers",
+                "Why it matters",
+                "Prerequisites"
+            ],
+            "estimated_length": "400-600 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} technical overview",
+                "{topic} importance",
+                "{topic} introduction"
+            ]
+        },
+        {
+            "section_id": "fundamentals",
+            "title": "Fundamental Concepts",
+            "purpose": "Core concepts and terminology",
+            "key_points": [
+                "Basic definitions",
+                "Fundamental principles",
+                "Key terminology"
+            ],
+            "estimated_length": "800-1200 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} fundamentals",
+                "{topic} basic concepts",
+                "{topic} definitions"
+            ],
+            "requires_diagrams": True,
+            "requires_terminology": True
+        },
+        {
+            "section_id": "technical_details",
+            "title": "Technical Details",
+            "purpose": "In-depth technical explanation",
+            "key_points": [
+                "Detailed mechanisms",
+                "Mathematical foundations",
+                "Technical specifications"
+            ],
+            "estimated_length": "1500-2000 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} technical details",
+                "{topic} mathematics",
+                "{topic} mechanisms"
+            ],
+            "requires_math": True,
+            "requires_diagrams": True,
+            "requires_fact_check": True
+        },
+        {
+            "section_id": "practical_applications",
+            "title": "Practical Applications",
+            "purpose": "Real-world use cases and examples",
+            "key_points": [
+                "Use cases",
+                "Implementation examples",
+                "Best practices"
+            ],
+            "estimated_length": "800-1000 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} applications",
+                "{topic} use cases",
+                "{topic} examples"
+            ],
+            "requires_diagrams": True,
+            "requires_citations": True
+        },
+        {
+            "section_id": "advanced_topics",
+            "title": "Advanced Topics",
+            "purpose": "Advanced concepts and future directions",
+            "key_points": [
+                "Advanced techniques",
+                "Current research",
+                "Future directions"
+            ],
+            "estimated_length": "600-800 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} advanced",
+                "{topic} research",
+                "{topic} future"
+            ],
+            "requires_math": True,
+            "requires_diagrams": True,
+            "requires_citations": True
+        }
+    ],
+    "special_features": {
+        "math_formulas": True,
+        "diagrams": True,
+        "fact_checking": True,
+        "citation_management": True,
+        "glossary": True
+    }
+}
+
+
+# General Non-Fiction Template
+GENERAL_NONFICTION_TEMPLATE = {
+    "name": "general_nonfiction",
+    "description": "General non-fiction book chapter template",
+    "book_type": "general",
+    "sections": [
+        {
+            "section_id": "introduction",
+            "title": "Introduction",
+            "purpose": "Hook readers and set expectations",
+            "key_points": [
+                "Engaging opening",
+                "Chapter overview",
+                "Why it matters"
+            ],
+            "estimated_length": "300-500 words",
+            "research_needed": False,
+            "search_queries": []
+        },
+        {
+            "section_id": "main_content",
+            "title": "Main Content",
+            "purpose": "Core content delivery",
+            "key_points": [
+                "Primary information",
+                "Supporting evidence",
+                "Analysis and insights"
+            ],
+            "estimated_length": "1500-2000 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} information",
+                "{topic} research",
+                "{topic} analysis"
+            ]
+        },
+        {
+            "section_id": "conclusion",
+            "title": "Conclusion",
+            "purpose": "Summarize and provide takeaways",
+            "key_points": [
+                "Summary of main points",
+                "Key takeaways",
+                "Connection to next chapter"
+            ],
+            "estimated_length": "300-400 words",
+            "research_needed": False,
+            "search_queries": []
+        }
+    ],
+    "special_features": {
+        "flexible": True  # Highly customizable
+    }
+}
+
+
 # Template Registry
 TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "blog_post": BLOG_POST_TEMPLATE,
@@ -451,6 +731,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "marketing": MARKETING_COPY_TEMPLATE,  # Alias
     "python_tutorial": PYTHON_TUTORIAL_TEMPLATE,
     "tutorial": PYTHON_TUTORIAL_TEMPLATE,  # Alias
+    "historical_book": HISTORICAL_BOOK_TEMPLATE,
+    "history": HISTORICAL_BOOK_TEMPLATE,  # Alias
+    "technical_guide": TECHNICAL_GUIDE_TEMPLATE,
+    "guide": TECHNICAL_GUIDE_TEMPLATE,  # Alias
+    "general_nonfiction": GENERAL_NONFICTION_TEMPLATE,
+    "general": GENERAL_NONFICTION_TEMPLATE,  # Alias
+    "nonfiction": GENERAL_NONFICTION_TEMPLATE,  # Alias
 }
 
 

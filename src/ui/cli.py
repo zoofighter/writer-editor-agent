@@ -312,6 +312,207 @@ Research data ready for writing.""",
 
         return decision
 
+    def start_book_session(
+        self,
+        topic: str,
+        book_type: str,
+        estimated_chapters: Optional[int] = None,
+        thread_id: Optional[str] = None,
+        max_iterations: Optional[int] = None,
+        max_outline_revisions: Optional[int] = None
+    ):
+        """
+        Start a book generation session.
+
+        Args:
+            topic: Book topic/title
+            book_type: Type of book (history, technical_guide, tutorial, general)
+            estimated_chapters: Number of chapters
+            thread_id: Session ID for resumption (creates new if None)
+            max_iterations: Override default max iterations
+            max_outline_revisions: Override default max outline revisions
+        """
+        self.print_banner()
+
+        # Generate or use provided thread_id
+        if not thread_id:
+            thread_id = str(uuid4())
+            self.console.print(f"\n[dim]Session ID: {thread_id}[/dim]")
+
+        # Create initial state for book
+        initial_state = create_initial_state(
+            topic=topic,
+            mode=self.mode,
+            max_iterations=max_iterations,
+            max_outline_revisions=max_outline_revisions,
+            book_type=book_type,
+            estimated_chapters=estimated_chapters
+        )
+
+        # Create config with thread_id
+        config = {"configurable": {"thread_id": thread_id}}
+
+        self.console.print(f"\n[bold green]Starting book generation:[/bold green] {topic}")
+        self.console.print(f"[bold cyan]Book Type:[/bold cyan] {book_type}")
+        self.console.print(f"[bold cyan]Chapters:[/bold cyan] {estimated_chapters or settings.default_book_chapters}\n")
+
+        try:
+            # Stream workflow events
+            for event in self.app.stream(initial_state, config, stream_mode="values"):
+                self._handle_book_event(event)
+
+            # Export book when complete
+            self._export_book(event)
+
+            self.console.print("\n[bold green]✓ Book generation completed successfully![/bold green]")
+
+        except GraphInterrupt as gi:
+            # Handle chapter interventions
+            self._handle_book_interrupt(gi, config, thread_id)
+
+        except Exception as e:
+            self.console.print(f"\n[bold red]✗ Error:[/bold red] {e}")
+            raise
+
+    def _handle_book_event(self, event: dict):
+        """
+        Handle book workflow event.
+
+        Args:
+            event: Event dictionary from workflow stream
+        """
+        stage = event.get("current_stage", "")
+        chapter_number = event.get("chapter_number", 0)
+
+        if stage == "planning":
+            self._display_book_planning(event)
+        elif stage == "writing_chapter":
+            self.console.print(f"\n[bold blue]Writing Chapter {chapter_number}...[/bold blue]")
+        elif stage == "draft_created":
+            self._display_chapter_draft(event)
+        elif stage == "draft_reviewed":
+            self._display_feedback(event)
+
+    def _handle_book_interrupt(self, interrupt_event: GraphInterrupt, config: dict, thread_id: str):
+        """
+        Handle chapter review intervention.
+
+        Args:
+            interrupt_event: The GraphInterrupt exception
+            config: Workflow configuration
+            thread_id: Session thread ID
+        """
+        # Get user decision on chapter
+        user_input = self._get_chapter_decision()
+
+        # Resume workflow with user input
+        try:
+            for event in self.app.stream(Command(resume=user_input), config, stream_mode="values"):
+                self._handle_book_event(event)
+
+            # Export book when complete
+            self._export_book(event)
+
+            self.console.print("\n[bold green]✓ Book completed![/bold green]")
+
+        except GraphInterrupt as gi:
+            # Another chapter intervention
+            self._handle_book_interrupt(gi, config, thread_id)
+
+        except Exception as e:
+            self.console.print(f"\n[bold red]✗ Error:[/bold red] {e}")
+            raise
+
+    def _display_book_planning(self, event: dict):
+        """Display book planning results."""
+        book_metadata = event.get("book_metadata")
+        toc = event.get("table_of_contents")
+
+        if book_metadata:
+            self.console.print(Panel(
+                f"""[bold]Title:[/bold] {book_metadata.get('book_title', 'Untitled')}
+[bold]Type:[/bold] {book_metadata.get('book_type', 'general')}
+[bold]Chapters:[/bold] {book_metadata.get('estimated_chapters', 0)}
+[bold]Language:[/bold] {book_metadata.get('language', 'en')}""",
+                title="[bold cyan]Book Planning Complete[/bold cyan]",
+                border_style="cyan"
+            ))
+
+        if toc:
+            chapters_text = ""
+            for chapter in toc.get("chapters", [])[:5]:  # Show first 5
+                num = chapter.get('number', 0)
+                title = chapter.get('title', '')
+                chapters_text += f"\n{num}. {title}"
+
+            total = len(toc.get("chapters", []))
+            if total > 5:
+                chapters_text += f"\n... and {total - 5} more chapters"
+
+            self.console.print(Panel(
+                chapters_text,
+                title="[bold green]Table of Contents[/bold green]",
+                border_style="green"
+            ))
+
+    def _display_chapter_draft(self, event: dict):
+        """Display chapter draft."""
+        draft = event.get("current_draft", "")
+        chapter_num = event.get("chapter_number", 0)
+
+        # Show preview
+        preview = draft[:500] + "..." if len(draft) > 500 else draft
+
+        self.console.print(Panel(
+            preview,
+            title=f"[bold blue]Chapter {chapter_num} Draft[/bold blue]",
+            border_style="blue"
+        ))
+
+        self.console.print(f"[dim]Full length: {len(draft)} characters[/dim]\n")
+
+    def _get_chapter_decision(self) -> str:
+        """
+        Get user decision on chapter.
+
+        Returns:
+            User decision: 'approve', 'revise', or 'stop'
+        """
+        self.console.print("\n[bold]Chapter Review[/bold]")
+
+        choices = ["approve", "revise", "stop"]
+        decision = Prompt.ask(
+            "What would you like to do?",
+            choices=choices,
+            default="approve"
+        )
+
+        return decision
+
+    def _export_book(self, final_state: dict):
+        """Export completed book."""
+        from src.utils import export_complete_book
+
+        book_metadata = final_state.get("book_metadata")
+        if not book_metadata:
+            return
+
+        self.console.print("\n[bold cyan]Exporting book...[/bold cyan]")
+
+        try:
+            paths = export_complete_book(final_state)
+
+            if paths['markdown']:
+                self.console.print(f"[bold green]✓ Markdown:[/bold green] {paths['markdown']}")
+
+            if paths['pdf']:
+                self.console.print(f"[bold green]✓ PDF:[/bold green] {paths['pdf']}")
+            elif settings.generate_pdf:
+                self.console.print("[yellow]Note: PDF generation skipped (pandoc not available)[/yellow]")
+
+        except Exception as e:
+            self.console.print(f"[bold red]✗ Export failed:[/bold red] {e}")
+
     def display_session_history(self, thread_id: str):
         """
         Display history of a session.

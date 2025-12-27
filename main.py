@@ -77,6 +77,15 @@ Examples:
   # Use simple workflow (Writer-Editor only)
   python main.py --mode simple
 
+  # Generate a book
+  python main.py --mode book --book-type history --topic "History of Google" --chapters 10
+
+  # Generate a technical guide
+  python main.py --mode book --book-type technical_guide --topic "Understanding GPT Models" --chapters 12
+
+  # Generate a Python tutorial book
+  python main.py --mode tutorial --topic "Python for Beginners" --chapters 15
+
   # Resume a previous session
   python main.py --thread-id abc-123-def
 
@@ -94,9 +103,22 @@ Examples:
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["simple", "multi-agent"],
+        choices=["simple", "multi-agent", "book", "tutorial"],
         default="multi-agent",
         help="Workflow mode (default: multi-agent)"
+    )
+
+    parser.add_argument(
+        "--book-type",
+        type=str,
+        choices=["history", "technical_guide", "tutorial", "general"],
+        help="Type of book (for book/tutorial modes)"
+    )
+
+    parser.add_argument(
+        "--chapters",
+        type=int,
+        help=f"Number of chapters (for book/tutorial modes, default: {settings.default_book_chapters})"
     )
 
     parser.add_argument(
@@ -133,16 +155,36 @@ Examples:
     # Ensure data directory exists
     ensure_data_directory()
 
+    # Validate book mode arguments
+    if args.mode in ["book", "tutorial"]:
+        if not args.topic:
+            print("Error: --topic is required for book/tutorial modes")
+            sys.exit(1)
+        if args.mode == "book" and not args.book_type:
+            print("Error: --book-type is required for book mode")
+            print("Available types: history, technical_guide, general")
+            sys.exit(1)
+
     # Create CLI and start session
     try:
         cli = CLI(mode=args.mode)
 
-        cli.start_session(
-            topic=args.topic,
-            thread_id=args.thread_id,
-            max_iterations=args.max_iterations,
-            max_outline_revisions=args.max_outline_revisions
-        )
+        if args.mode in ["book", "tutorial"]:
+            cli.start_book_session(
+                topic=args.topic,
+                book_type=args.book_type or "tutorial",
+                estimated_chapters=args.chapters,
+                thread_id=args.thread_id,
+                max_iterations=args.max_iterations,
+                max_outline_revisions=args.max_outline_revisions
+            )
+        else:
+            cli.start_session(
+                topic=args.topic,
+                thread_id=args.thread_id,
+                max_iterations=args.max_iterations,
+                max_outline_revisions=args.max_outline_revisions
+            )
 
     except KeyboardInterrupt:
         print("\n\nInterrupted by user. Session state has been saved.")

@@ -1,7 +1,13 @@
 """
-Utility modules for code validation and other helper functions.
+Utility modules for code validation, export management, and other helper functions.
 """
 
 from .code_validator import PythonCodeValidator
+from .export_manager import ExportManager, export_chapter_to_file, export_complete_book
 
-__all__ = ["PythonCodeValidator"]
+__all__ = [
+    "PythonCodeValidator",
+    "ExportManager",
+    "export_chapter_to_file",
+    "export_complete_book"
+]
