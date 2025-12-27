@@ -18,11 +18,27 @@ LangGraph를 사용한 Writer-Editor 협업 에이전트 시스템. Writer가 �
 
 ## 🏗 시스템 아키텍처
 
+### Simple Mode (Writer-Editor)
 ```
 START → Writer → Editor → User Intervention → [조건 분기]
                                                     ↓
                                     [계속] ─────→ Writer (루프)
                                     [중단] ─────→ END
+```
+
+### Multi-Agent Mode (6 Agents)
+```
+START → Business Analyst → Content Strategist → Outline Reviewer
+     → [Outline Review Loop] → User Approval → Web Search
+     → Writer → Editor → [Draft Review Loop] → END
+
+6개 전문 에이전트:
+1. Business Analyst - 사용자 의도 분석
+2. Content Strategist - 템플릿 기반 목차 작성
+3. Outline Reviewer - 목차 품질 검토 (Self-Review)
+4. Web Search Agent - 웹 검색 및 리서치
+5. Writer - 목차와 리서치 기반 본문 작성
+6. Editor - 편집 및 최종 검토
 ```
 
 ## 📦 설치 방법
@@ -75,29 +91,59 @@ python main.py --test-connection
 
 ### 3. 애플리케이션 실행
 ```bash
-# 기본 실행 (대화형)
+# 기본 실행 (Multi-Agent 모드)
 python main.py
 
 # 주제 지정
 python main.py --topic "AI의 미래"
 
+# Simple 모드 (Writer-Editor만)
+python main.py --mode simple
+
 # 이전 세션 재개
 python main.py --thread-id "session-id"
+
+# 반복 횟수 커스터마이징
+python main.py --max-iterations 5 --max-outline-revisions 2
 ```
 
 ## 📚 주요 기능
 
-### ✅ 구현 완료
-- 상태 스키마 정의 (TypedDict + Reducer 패턴)
-- LM Studio 클라이언트 래퍼
-- Writer 에이전트 (초안 작성 및 수정)
-- 설정 관리 (Pydantic Settings)
+### ✅ 구현 완료 (100%)
 
-### 🚧 개발 중
-- Editor 에이전트 (피드백 제공)
-- LangGraph 워크플로우 그래프
-- Rich CLI 인터페이스
-- 메인 진입점
+**핵심 에이전트 (6개)**
+- Business Analyst - 사용자 의도 분석 (JSON 출력)
+- Content Strategist - 템플릿 기반 목차 생성
+- Outline Reviewer - 자동 목차 검토 (Self-Review 패턴)
+- Web Search Agent - DuckDuckGo/Tavily/Serper 통합 검색
+- Writer - 목차 및 리서치 기반 작성 (3가지 모드)
+- Editor - 구조화된 피드백 제공
+
+**워크플로우 시스템**
+- Simple 워크플로우 (Writer-Editor, 하위 호환)
+- Multi-Agent 워크플로우 (6개 에이전트 협업)
+- 목차 검토 루프 (최대 3회)
+- 초안 검토 루프 (최대 10회)
+- 2개의 Human-in-the-Loop 개입 포인트
+- SQLite 기반 세션 영속화 및 재개
+
+**템플릿 및 도구**
+- 문서 유형별 템플릿 (블로그, 기술문서, 마케팅)
+- 통합 웹 검색 인터페이스
+- 에이전트별 최적화된 Temperature
+- Rich 기반 아름다운 CLI
+
+**인프라**
+- 확장된 상태 스키마 (멀티 에이전트 지원)
+- Pydantic 기반 설정 관리
+- LM Studio 클라이언트 래퍼
+- 완전한 모듈화 구조
+
+### 🔮 향후 계획
+- 유닛 테스트 및 통합 테스트
+- 웹 UI (FastAPI + React)
+- 추가 템플릿 (이메일, 소셜 미디어 등)
+- 성능 메트릭 및 분석
 
 ## 📖 문서
 
