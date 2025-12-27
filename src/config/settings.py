@@ -44,6 +44,17 @@ class Settings(BaseSettings):
     # Database Configuration
     checkpoint_db_path: str = "data/checkpoints.sqlite"
 
+    # Tutorial Book Extension Settings
+    code_example_temperature: float = 0.2  # Precision for code generation
+    exercise_generator_temperature: float = 0.4  # Moderate for exercise variety
+    tutorial_output_dir: str = "output/tutorial"  # Export directory for chapters
+    auto_export_chapters: bool = True  # Auto-export on workflow completion
+    validate_code_examples: bool = True  # Validate generated code syntax
+    max_code_line_length: int = 79  # PEP 8 line length limit
+    mc_questions_per_chapter: int = 4  # Multiple choice questions
+    fill_in_blank_per_chapter: int = 3  # Fill-in-the-blank exercises
+    coding_challenges_per_chapter: int = 3  # Coding challenges
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

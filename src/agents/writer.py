@@ -196,6 +196,64 @@ Sources: {len(research['sources'])} sources available"""
         """Format key points as bulleted list."""
         return "\n".join(f"   - {point}" for point in key_points)
 
+    def _integrate_code_examples(
+        self,
+        content: str,
+        code_examples_by_section: Dict[str, list]
+    ) -> str:
+        """
+        Integrate code examples into written content.
+
+        Looks for markers like [CODE_EXAMPLE:section_id:N] and replaces them
+        with actual code. If no markers found, code is appended to relevant sections.
+
+        Args:
+            content: The written content
+            code_examples_by_section: Code examples organized by section_id
+
+        Returns:
+            Content with integrated code examples
+
+        Example:
+            >>> writer = WriterAgent(client)
+            >>> content = "See example: [CODE_EXAMPLE:intro:0]"
+            >>> code_map = {"intro": ["print('hi')"]}
+            >>> result = writer._integrate_code_examples(content, code_map)
+            >>> assert "```python" in result
+        """
+        import re
+
+        # Pattern: [CODE_EXAMPLE:section_id:index]
+        pattern = r'\[CODE_EXAMPLE:(\w+):(\d+)\]'
+
+        def replace_marker(match):
+            section_id = match.group(1)
+            index = int(match.group(2))
+
+            if section_id in code_examples_by_section:
+                examples = code_examples_by_section[section_id]
+                if index < len(examples):
+                    code = examples[index]
+                    return f"\n\n```python\n{code}\n```\n\n"
+
+            # If code not found, keep marker
+            return match.group(0)
+
+        # Replace all markers
+        result = re.sub(pattern, replace_marker, content)
+
+        # If no markers were used, append code at the end of relevant sections
+        if result == content and code_examples_by_section:
+            # Simple approach: append all code examples at the end
+            result += "\n\n## Code Examples\n\n"
+            for section_id, examples in code_examples_by_section.items():
+                section_title = section_id.replace('_', ' ').title()
+                result += f"### {section_title}\n\n"
+                for i, code in enumerate(examples, start=1):
+                    result += f"**Example {i}:**\n\n```python\n{code}\n```\n\n"
+
+        return result
+
 
 def writer_node(state: WorkflowState) -> Dict[str, Any]:
     """
@@ -249,6 +307,11 @@ def writer_node(state: WorkflowState) -> Dict[str, Any]:
             state["current_draft"],
             state["current_feedback"]
         )
+
+    # Integrate code examples if available (for tutorial mode)
+    code_examples = state.get("code_examples_by_section")
+    if code_examples:
+        draft = writer._integrate_code_examples(draft, code_examples)
 
     # Create iteration record
     iteration = {

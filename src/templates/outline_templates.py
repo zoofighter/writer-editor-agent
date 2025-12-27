@@ -286,6 +286,160 @@ MARKETING_COPY_TEMPLATE = {
 }
 
 
+# Python Tutorial Template
+PYTHON_TUTORIAL_TEMPLATE = {
+    "name": "python_tutorial",
+    "description": "Step-by-step Python tutorial chapter for complete beginners",
+    "sections": [
+        {
+            "section_id": "introduction",
+            "title": "Chapter Introduction",
+            "purpose": "Introduce the chapter topic and learning objectives",
+            "key_points": [
+                "What will be covered in this chapter",
+                "Why this concept is important",
+                "How it connects to previous chapters (if applicable)",
+                "Clear learning objectives"
+            ],
+            "estimated_length": "150-250 words",
+            "research_needed": False,
+            "search_queries": [],
+            "requires_code": False
+        },
+        {
+            "section_id": "concept_explanation",
+            "title": "Concept Explanation",
+            "purpose": "Explain the core programming concept in beginner-friendly language",
+            "key_points": [
+                "Define the concept without jargon",
+                "Use real-world analogies",
+                "Break down complex ideas into simple parts",
+                "Explain 'why' not just 'how'"
+            ],
+            "estimated_length": "300-500 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} Python beginner explanation",
+                "{topic} Python simple analogy",
+                "{topic} Python tutorial"
+            ],
+            "requires_code": False
+        },
+        {
+            "section_id": "basic_examples",
+            "title": "Basic Examples",
+            "purpose": "Show simple, clear code examples that demonstrate the concept",
+            "key_points": [
+                "Start with the simplest possible example",
+                "Add comments to explain every line",
+                "Show expected output for each example",
+                "Use meaningful variable names"
+            ],
+            "estimated_length": "200-300 words",
+            "research_needed": False,
+            "search_queries": [],
+            "requires_code": True,
+            "code_complexity": "basic",
+            "num_code_examples": 2
+        },
+        {
+            "section_id": "progressive_examples",
+            "title": "Progressive Examples",
+            "purpose": "Build on basic examples with slightly more complex scenarios",
+            "key_points": [
+                "Show how to combine concepts",
+                "Introduce variations",
+                "Demonstrate practical use cases",
+                "Maintain beginner-appropriate complexity"
+            ],
+            "estimated_length": "300-400 words",
+            "research_needed": False,
+            "search_queries": [],
+            "requires_code": True,
+            "code_complexity": "intermediate",
+            "num_code_examples": 3
+        },
+        {
+            "section_id": "common_mistakes",
+            "title": "Common Mistakes and How to Avoid Them",
+            "purpose": "Highlight typical beginner errors and their solutions",
+            "key_points": [
+                "Show common errors with actual error messages",
+                "Explain why the error occurs",
+                "Provide the correct solution",
+                "Include debugging tips"
+            ],
+            "estimated_length": "200-300 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} Python common mistakes",
+                "{topic} Python errors beginners",
+                "{topic} Python debugging"
+            ],
+            "requires_code": True,
+            "code_complexity": "basic",
+            "num_code_examples": 2
+        },
+        {
+            "section_id": "practical_application",
+            "title": "Practical Application",
+            "purpose": "Show a real-world mini-project using the chapter's concepts",
+            "key_points": [
+                "Create a complete, runnable example",
+                "Solve a realistic beginner problem",
+                "Tie together multiple concepts from the chapter",
+                "Provide step-by-step implementation guide"
+            ],
+            "estimated_length": "300-500 words",
+            "research_needed": True,
+            "search_queries": [
+                "{topic} Python beginner project",
+                "{topic} Python real-world example",
+                "{topic} Python practical use"
+            ],
+            "requires_code": True,
+            "code_complexity": "intermediate",
+            "num_code_examples": 1
+        },
+        {
+            "section_id": "key_takeaways",
+            "title": "Key Takeaways",
+            "purpose": "Summarize the chapter's main points and reinforce learning",
+            "key_points": [
+                "List 3-5 key points learned",
+                "Quick reference of syntax covered",
+                "Preview of next chapter (if applicable)",
+                "Encourage further practice"
+            ],
+            "estimated_length": "150-200 words",
+            "research_needed": False,
+            "search_queries": [],
+            "requires_code": False
+        },
+        {
+            "section_id": "exercises",
+            "title": "Practice Exercises",
+            "purpose": "Provide hands-on exercises to reinforce understanding",
+            "key_points": [
+                "Include multiple choice questions for concept understanding",
+                "Add fill-in-the-blank code exercises",
+                "Provide coding challenges with varying difficulty",
+                "Include answer key in collapsible section"
+            ],
+            "estimated_length": "Varies (exercises only)",
+            "research_needed": False,
+            "search_queries": [],
+            "requires_code": False,
+            "exercise_types": {
+                "multiple_choice": 4,
+                "fill_in_blank": 3,
+                "coding_challenges": 3
+            }
+        }
+    ]
+}
+
+
 # Template Registry
 TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "blog_post": BLOG_POST_TEMPLATE,
@@ -295,6 +449,8 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "article": TECHNICAL_ARTICLE_TEMPLATE,  # Alias
     "marketing_copy": MARKETING_COPY_TEMPLATE,
     "marketing": MARKETING_COPY_TEMPLATE,  # Alias
+    "python_tutorial": PYTHON_TUTORIAL_TEMPLATE,
+    "tutorial": PYTHON_TUTORIAL_TEMPLATE,  # Alias
 }
 
 

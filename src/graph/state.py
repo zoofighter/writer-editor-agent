@@ -151,6 +151,78 @@ class ReviewIteration(TypedDict):
     timestamp: str
 
 
+class MultipleChoiceQuestion(TypedDict):
+    """
+    A multiple choice question for tutorial exercises.
+
+    Attributes:
+        question: The question text
+        options: List of answer options (typically 4)
+        correct_answer: Index of the correct option (0-based)
+        explanation: Explanation of why the answer is correct
+    """
+    question: str
+    options: List[str]
+    correct_answer: int
+    explanation: str
+
+
+class FillInBlankExercise(TypedDict):
+    """
+    A fill-in-the-blank coding exercise.
+
+    Attributes:
+        description: Description of what the code should do
+        code_template: Code with blanks marked as _____ or [BLANK]
+        correct_answer: The correct code to fill in the blank
+        hint: Optional hint for the student
+    """
+    description: str
+    code_template: str
+    correct_answer: str
+    hint: Optional[str]
+
+
+class CodingChallenge(TypedDict):
+    """
+    A coding challenge for practice.
+
+    Attributes:
+        title: Challenge title
+        description: Detailed description of the problem
+        difficulty: Difficulty level (easy, medium, hard)
+        starter_code: Optional starter code template
+        solution: Complete solution code
+        test_cases: List of test cases (input -> expected output)
+        hints: Optional list of hints
+    """
+    title: str
+    description: str
+    difficulty: str
+    starter_code: Optional[str]
+    solution: str
+    test_cases: List[Dict[str, str]]  # {"input": "...", "output": "..."}
+    hints: Optional[List[str]]
+
+
+class ChapterExercises(TypedDict):
+    """
+    Complete set of exercises for a tutorial chapter.
+
+    Attributes:
+        chapter_number: Chapter number this exercise set belongs to
+        multiple_choice: List of multiple choice questions
+        fill_in_blank: List of fill-in-the-blank exercises
+        coding_challenges: List of coding challenges
+        timestamp: ISO format timestamp of generation
+    """
+    chapter_number: int
+    multiple_choice: List[MultipleChoiceQuestion]
+    fill_in_blank: List[FillInBlankExercise]
+    coding_challenges: List[CodingChallenge]
+    timestamp: str
+
+
 class WorkflowState(TypedDict):
     """
     Main state schema for the Writer-Editor review loop.
@@ -182,6 +254,14 @@ class WorkflowState(TypedDict):
         research_by_section: Research data organized by section_id
         current_stage: Current workflow stage (intent/outline/research/draft/edit)
 
+        # Tutorial book extension fields
+        code_examples_by_section: Code examples organized by section_id
+        code_validation_results: Validation results for generated code (section_id -> (is_valid, error))
+        chapter_exercises: Generated exercises for the chapter
+        chapter_number: Current chapter number (for tutorial books)
+        chapter_metadata: Additional metadata for the chapter (title, learning objectives, etc.)
+        export_path: Path where the chapter was exported
+
     Notes:
         - Fields with Annotated[List[T], add] use the add reducer to accumulate items
         - This means each node can append to the list by returning new items
@@ -210,3 +290,11 @@ class WorkflowState(TypedDict):
     research_data: Annotated[List[SectionResearch], add]
     research_by_section: Dict[str, SectionResearch]
     current_stage: str
+
+    # Tutorial book extension fields
+    code_examples_by_section: Dict[str, List[str]]
+    code_validation_results: Dict[str, tuple]  # section_id -> (is_valid, error_message)
+    chapter_exercises: Optional[ChapterExercises]
+    chapter_number: Optional[int]
+    chapter_metadata: Optional[Dict[str, Any]]
+    export_path: Optional[str]
