@@ -310,38 +310,7 @@ def create_multi_agent_workflow() -> StateGraph:
     return workflow
 
 
-def compile_workflow(mode: str = "multi-agent") -> Any:
-    """
-    Compile the workflow graph with checkpointing.
-
-    Args:
-        mode: Workflow mode ('simple' or 'multi-agent')
-
-    Returns:
-        Compiled workflow graph ready for execution
-
-    Example:
-        >>> app = compile_workflow("multi-agent")
-        >>> config = {"configurable": {"thread_id": "my-session"}}
-        >>> for event in app.stream(initial_state, config):
-        ...     print(event)
-    """
-    # Create workflow based on mode
-    if mode == "simple":
-        workflow = create_simple_workflow()
-    elif mode == "multi-agent":
-        workflow = create_multi_agent_workflow()
-    else:
-        raise ValueError(f"Unknown workflow mode: {mode}. Use 'simple' or 'multi-agent'.")
-
-    # Set up checkpointer for state persistence
-    checkpointer = SqliteSaver.from_conn_string(settings.checkpoint_db_path)
-
-    # Compile with checkpointer
-    return workflow.compile(checkpointer=checkpointer)
-
-
-def create_initial_state(
+def create_initial_state_legacy(
     topic: str,
     mode: str = "multi-agent",
     max_iterations: int = None,
@@ -528,6 +497,7 @@ def create_book_workflow() -> StateGraph:
     workflow = StateGraph(WorkflowState)
 
     # Add all nodes
+    workflow.add_node("business_analyst", business_analyst_node)
     workflow.add_node("book_coordinator", book_coordinator_node)
     workflow.add_node("prepare_chapter", prepare_next_chapter_node)
     workflow.add_node("content_strategist", content_strategist_node)
@@ -542,6 +512,7 @@ def create_book_workflow() -> StateGraph:
     workflow.add_node("chapter_intervention", chapter_intervention_node)
 
     # Phase 1: Book Planning
+    workflow.add_edge("business_analyst", "book_coordinator")
     workflow.add_edge("book_coordinator", "prepare_chapter")
 
     # Phase 2: Chapter Writing Loop
@@ -572,7 +543,7 @@ def create_book_workflow() -> StateGraph:
     )
 
     # Set entry point
-    workflow.set_entry_point("book_coordinator")
+    workflow.set_entry_point("business_analyst")
 
     return workflow
 
@@ -594,6 +565,7 @@ def create_tutorial_workflow() -> StateGraph:
     workflow = StateGraph(WorkflowState)
 
     # Add nodes
+    workflow.add_node("business_analyst", business_analyst_node)
     workflow.add_node("book_coordinator", book_coordinator_node)
     workflow.add_node("prepare_chapter", prepare_next_chapter_node)
     workflow.add_node("content_strategist", content_strategist_node)
@@ -606,6 +578,7 @@ def create_tutorial_workflow() -> StateGraph:
     workflow.add_node("chapter_intervention", chapter_intervention_node)
 
     # Define edges
+    workflow.add_edge("business_analyst", "book_coordinator")
     workflow.add_edge("book_coordinator", "prepare_chapter")
     workflow.add_edge("prepare_chapter", "content_strategist")
     workflow.add_edge("content_strategist", "web_search")
@@ -627,7 +600,7 @@ def create_tutorial_workflow() -> StateGraph:
         }
     )
 
-    workflow.set_entry_point("book_coordinator")
+    workflow.set_entry_point("business_analyst")
 
     return workflow
 
@@ -661,7 +634,10 @@ def compile_workflow(mode: str = "multi-agent") -> Any:
         raise ValueError(f"Unknown workflow mode: {mode}. Use 'simple', 'multi-agent', 'book', or 'tutorial'.")
 
     # Set up checkpointer for state persistence
-    checkpointer = SqliteSaver.from_conn_string(settings.checkpoint_db_path)
+    # Use synchronous SQLite connection for SqliteSaver v3.x
+    import sqlite3
+    conn = sqlite3.connect(settings.checkpoint_db_path, check_same_thread=False)
+    checkpointer = SqliteSaver(conn)
 
     # Compile with checkpointer
     return workflow.compile(checkpointer=checkpointer)
